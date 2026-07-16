@@ -1,0 +1,67 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+
+namespace Task3
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.Write("Введіть шлях до файлу з текстом: ");
+            string textFilePath = Console.ReadLine();
+
+            Console.Write("Введіть шлях до файлу зі словами для модерування: ");
+            string wordsFilePath = Console.ReadLine();
+
+            if (!File.Exists(textFilePath) || !File.Exists(wordsFilePath))
+            {
+                Console.WriteLine("Один із файлів не знайдено");
+                return;
+            }
+
+            string text = File.ReadAllText(textFilePath);
+            string wordsFileContent = File.ReadAllText(wordsFilePath);
+
+            // Витягуємо тільки букви (без розділових знаків) зі списку слів для модерування
+            string[] moderationWords = Regex.Matches(wordsFileContent, @"[a-zA-Zа-яА-ЯіІїЇєЄ]+")
+                .Cast<Match>()
+                .Select(m => m.Value)
+                .ToArray();
+
+            int totalReplacements = 0;
+
+            foreach (string word in moderationWords)
+            {
+                if (string.IsNullOrWhiteSpace(word))
+                    continue;
+
+                // Замінюємо саме слово разом із розділовим знаком одразу після нього (якщо є)
+                string pattern = @"\b" + Regex.Escape(word) + @"\b[.,!?;:]?";
+
+                text = Regex.Replace(text, pattern, match =>
+                {
+                    totalReplacements++;
+                    return new string('*', word.Length);
+                }, RegexOptions.IgnoreCase);
+            }
+
+            string outputFilePath = Path.Combine(
+                Path.GetDirectoryName(Path.GetFullPath(textFilePath)),
+                Path.GetFileNameWithoutExtension(textFilePath) + "_moderated" + Path.GetExtension(textFilePath));
+
+            File.WriteAllText(outputFilePath, text);
+
+            Console.WriteLine("--- Статистика ---");
+            Console.WriteLine($"Слів для модерування: {moderationWords.Length}");
+            Console.WriteLine($"Всього замінено входжень: {totalReplacements}");
+            Console.WriteLine($"Результат збережено у файл: {outputFilePath}");
+            Console.WriteLine();
+            Console.WriteLine("--- Результат ---");
+            Console.WriteLine(text);
+
+            Console.ReadKey();
+        }
+    }
+}
