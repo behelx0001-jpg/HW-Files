@@ -1,0 +1,62 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+namespace Task1
+{
+    class Program
+    {
+        static bool IsPrime(int number)
+        {
+            if (number < 2) return false;
+            for (int i = 2; i <= Math.Sqrt(number); i++)
+            {
+                if (number % i == 0) return false;
+            }
+            return true;
+        }
+
+        static bool IsFibonacci(int number)
+        {
+            int a = 0, b = 1;
+            if (number == 0) return true;
+            while (b < number)
+            {
+                int temp = b;
+                b = a + b;
+                a = temp;
+            }
+            return b == number;
+        }
+
+        static void Main(string[] args)
+        {
+            string primesFilePath = "primes.txt";
+            string fibonacciFilePath = "fibonacci.txt";
+
+            Random random = new Random();
+            List<int> numbers = new List<int>();
+
+            for (int i = 0; i < 100; i++)
+            {
+                numbers.Add(random.Next(0, 1000));
+            }
+
+            List<int> primes = numbers.Where(IsPrime).ToList();
+            List<int> fibonacciNumbers = numbers.Where(IsFibonacci).ToList();
+
+            File.WriteAllLines(primesFilePath, primes.Select(n => n.ToString()));
+            File.WriteAllLines(fibonacciFilePath, fibonacciNumbers.Select(n => n.ToString()));
+
+            Console.WriteLine("--- Статистика ---");
+            Console.WriteLine($"Всього згенеровано чисел: {numbers.Count}");
+            Console.WriteLine($"Знайдено простих чисел: {primes.Count}");
+            Console.WriteLine($"Знайдено чисел Фібоначчі: {fibonacciNumbers.Count}");
+            Console.WriteLine($"Прості числа збережено у файл: {Path.GetFullPath(primesFilePath)}");
+            Console.WriteLine($"Числа Фібоначчі збережено у файл: {Path.GetFullPath(fibonacciFilePath)}");
+
+            Console.ReadKey();
+        }
+    }
+}
