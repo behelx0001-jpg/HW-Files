@@ -1,0 +1,61 @@
+using System;
+using System.IO;
+
+namespace Task2
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.Write("Введіть шлях до файлу: ");
+            string filePath = Console.ReadLine();
+
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine("Файл не знайдено");
+                return;
+            }
+
+            Console.Write("Введіть слово для пошуку: ");
+            string searchWord = Console.ReadLine();
+
+            Console.Write("Введіть слово для заміни: ");
+            string replaceWord = Console.ReadLine();
+
+            string text = File.ReadAllText(filePath);
+
+            int occurrencesCount = CountOccurrences(text, searchWord);
+
+            string updatedText = text.Replace(searchWord, replaceWord);
+
+            File.WriteAllText(filePath, updatedText);
+
+            Console.WriteLine("--- Статистика ---");
+            Console.WriteLine($"Шуканe слово: \"{searchWord}\"");
+            Console.WriteLine($"Слово для заміни: \"{replaceWord}\"");
+            Console.WriteLine($"Кількість знайдених входжень: {occurrencesCount}");
+            Console.WriteLine($"Розмір файлу до заміни: {text.Length} символів");
+            Console.WriteLine($"Розмір файлу після заміни: {updatedText.Length} символів");
+            Console.WriteLine("Файл успішно оновлено");
+
+            Console.ReadKey();
+        }
+
+        static int CountOccurrences(string text, string word)
+        {
+            if (string.IsNullOrEmpty(word))
+                return 0;
+
+            int count = 0;
+            int index = 0;
+
+            while ((index = text.IndexOf(word, index)) != -1)
+            {
+                count++;
+                index += word.Length;
+            }
+
+            return count;
+        }
+    }
+}
